@@ -1,0 +1,4 @@
+# ignore specific files created by programs
+ext_names.dat
+int_expr.dat
+int_names.dat
