@@ -56,7 +56,7 @@ else:
         m_text = "$M_{ALP}$"
     elif proc == "scalar":
         g_text = "g_i"
-        g_const = ""
+        g_const = "2000.0"
         m_text = "$M_X$"
         
     m_const = "1.0"
