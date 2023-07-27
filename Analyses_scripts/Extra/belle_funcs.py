@@ -9,9 +9,6 @@ import os
 import math
 import statistics
 
-from sklearn.preprocessing import StandardScaler 
-from sklearn.preprocessing import MinMaxScaler
-
 from scipy.stats import poisson
 
 def fmt(x, pos):
