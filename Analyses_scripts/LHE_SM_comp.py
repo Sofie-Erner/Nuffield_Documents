@@ -20,9 +20,9 @@ from scipy.integrate import trapz
 from sympy import var
 from sympy import N
 
-from Extra/stat_extra import *
-from Extra/fit_funcs import *
-from Extra/DP_ALP_extra import *
+from Extra.stat_extra import *
+from Extra.fit_funcs import *
+from Extra.DP_ALP_extra import *
 
 def func_def(x,mA,Eng1,Eng2,me,gA,gE,fa,gX,line_str,s_denom,s_num,s_other):
     if len(s_other) != 0 and pd.isna(eval(s_other)):
