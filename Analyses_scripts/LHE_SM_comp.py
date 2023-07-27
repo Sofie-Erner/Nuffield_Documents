@@ -364,27 +364,6 @@ if cos_tots_w_cuts:
     cos_err_w_cuts["SM"] = [ percentage_error(cos_Se_Sa_w_cuts["SM"][c_val],cos_tots_w_cuts["SM"][c_val]) for c_val in range(0,len(cos_vals)) ]
     cos_err_no_cuts["SM"] = [ percentage_error(cos_Se_Sa_no_cuts["SM"][c_val],cos_tots_no_cuts["SM"][c_val]) for c_val in range(0,len(cos_vals)) ]
 
-# --- Structure for cos(theta) dependece ---
-if proc != "all":
-    test_n = len(cos_probs_w_cuts[titles[3]])
-    cos_a = np.sign( np.array([ cos_probs_w_cuts[titles[3]][i] - cos_probs_w_cuts[titles[3]][i+1] for i in range(0,test_n-1) if cos_probs_w_cuts[titles[3]][i+1] != 0.0 ])) # sign of accelerations
-    n_turns = np.array([ 1 for i in range(0,len(cos_a)-1) if cos_a[i] != cos_a[i+1] ]).sum()
-
-    if n_turns == 0.0:
-        if len(cos_50[titles[3].split("_")[0]]) != 0:
-            cross = round(cos_50[titles[3].split("_")[0]][0],1)
-            cos_step = 0.1
-            cross_m = cross
-            cross_p = cross
-
-            while cross_m >= cos_min and cross_p <= cos_max:
-                cross_p = round(cross_p + 0.1,1)
-                cross_m = round(cross_m - 0.1,1)
-
-                temp1 = np.array([ cos_Se_Sa_w_cuts[titles[3]][c_val] for c_val in range(0,len(cos_vals)) if cos_vals[c_val] >= round(cross_m,1) and cos_vals[c_val] <= round(cross_p,1) ])
-                temp2 = np.array([ cos_tots_w_cuts[titles[3]][c_val] for c_val in range(0,len(cos_vals)) if cos_vals[c_val] >= round(cross_m,1) and cos_vals[c_val] <= round(cross_p,1) ])
-                per = float(temp1.sum())/float(temp2.sum())
-
 # --- Forwards/Backwards ---
 for_no_cuts = np.array([])
 back_no_cuts = np.array([])
