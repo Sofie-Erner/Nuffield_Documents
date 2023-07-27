@@ -13,12 +13,14 @@ from scipy.stats import poisson
 import scipy.special as sc
 
 import statistics
+#from sklearn.preprocessing import StandardScaler 
+#from sklearn.preprocessing import MinMaxScaler
 
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.mathematica import mathematica
 from sympy import var
 
-from Extra.belle_funcs import *
+from belle_funcs import *
 
 # ---------- Command Line Arguments ----------
 ending = ".dat"
@@ -89,13 +91,22 @@ t_max = 0
 
 # --- Photon Detection Efficiency
 # approximate equations based on plot from Belle II Physics Book 
-def phot_eff(m):
-    if m < 6:
-        return -1.451*10**(-3)*m**3 + 4.022*10**(-3)*m**2 - 2.169*10**(-3)*m + 3.166*10**(-1)
-    elif m >= 6:
-        return -7.383*10**(-2)*m**3 + 1.510*m**2 - 1.030*10**(+1)*m + 2.384*10**(+1)
+def phot_eff(m,t):
+    if t == "l" and m <= 6:
+        #return -1.451*10**(-3)*m**3 + 4.022*10**(-3)*m**2 - 2.169*10**(-3)*m + 3.166*10**(-1)
+        return 0.316399 + 0.00312277*m - 0.00273289*m**2 + 0.00127621*m**3 - 0.000436459*m**4 + 0.0000241382*m**5 
+    elif t == "l" and m >6:
+        return 0.0
+    elif t == "h":
+        if m < 6:
+            m = 6
+        return 151.544 - 114.57*m + 34.6483*m**2 - 5.2241*m**3 + 0.392818*m**4 - 0.0117942*m**5
+        #return -7.383*10**(-2)*m**3 + 1.510*m**2 - 1.030*10**(+1)*m + 2.384*10**(+1)
+    elif t == "m":
+        m = 0
+        return 0.316399 + 0.00312277*m - 0.00273289*m**2 + 0.00127621*m**3 - 0.000436459*m**4 + 0.0000241382*m**5 
     else:
-        return 1
+        return 1.0
     
 
 # Dark Matter Mass and CMS Energy
@@ -289,36 +300,38 @@ if len(files) > 1 and SM_on == 1:
         c_crit_indi = np.zeros([2,len(z_data.keys())])
 
         for n in range(1,len(z_data.keys())):
-            #print(titles[n])
             m_i = float(titles[n].split("_")[0])
             c_i = float(titles[n].split("_")[1])
 
             if N_low_high[0][n] != 0:
-                #n_SM = N_crit_low_high[0]
-                #n_SM = N_SM_crit[0][n-1]
-                if c_i < 1:
-                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i)*L))/(N_low_high[0][n]/L))*c_i
-                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i)*L))/(N_low_high[0][n]/L))*c_i
+                if len(E_low_high) > 1:
+                    t = "l"
                 else:
-                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i)*L))/(N_low_high[0][n]/L))*(1/c_i)
-                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i)*L))/(N_low_high[0][n]/L))*(1/c_i)
+                    t = "m"
+
+                if c_i < 1:
+                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*c_i
+                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*c_i
+                else:
+                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*(1/c_i)
+                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*(1/c_i)
             
             if len(E_low_high) > 1:
                 if N_low_high[1][n] != 0:
                     #n_SM = N_crit_low_high[1]
                     #n_SM = N_SM_crit[1][n-1]
                     if c_i < 1:
-                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i)*L))/(N_low_high[1][n]/L))*c_i
-                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i)*L))/(N_low_high[1][n]/L))*c_i
+                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i 
+                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i
                     else:
-                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i)*L))/(N_low_high[1][n]/L))*(1/c_i)
-                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i)*L))/(N_low_high[1][n]/L))*(1/c_i)
+                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
+                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
    
     
 
-    print(N_low_high)
+    #print(N_low_high)
     #print(N_crit_low_high)
-    print("N_SM: ",N_SM)
+    #print("N_SM: ",N_SM)
     #print(N_SM_crit)
    
     print("----")
