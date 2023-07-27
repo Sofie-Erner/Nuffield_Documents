@@ -20,7 +20,7 @@ from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.mathematica import mathematica
 from sympy import var
 
-from belle_funcs import *
+from Extra.belle_funcs import *
 
 # ---------- Command Line Arguments ----------
 ending = ".dat"

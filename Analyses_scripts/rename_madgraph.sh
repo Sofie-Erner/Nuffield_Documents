@@ -41,7 +41,7 @@ for path in run_*; do
         mv *.lhe $name.lhe
         #mv *.hepmc.gz $name.hepmc.gz
         #mv *.txt $name.txt
-        mv un*.dat $name.dat
+        mv un*.dat $name.dat
         mv E_theta.dat E_theta_$name.dat 
         #echo "done"
     #fi

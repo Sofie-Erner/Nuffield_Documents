@@ -24,24 +24,6 @@ from Extra.stat_extra import *
 from Extra.fit_funcs import *
 from Extra.DP_ALP_extra import *
 
-def func_def(x,mA,Eng1,Eng2,me,gA,gE,fa,gX,line_str,s_denom,s_num,s_other):
-    if len(s_other) != 0 and pd.isna(eval(s_other)):
-        out_i = 1.0
-    else:
-        out_denom = eval(s_denom) 
-        out_num = eval(s_num)
-
-        if math.isnan(out_denom):
-            out_i = 0.0
-        elif math.isnan(out_num) or np.round(out_denom,5) == np.round(out_num,5):
-            out_i = 1.0
-        elif np.round(out_denom,5) == 0.0 or np.round(out_denom,5) == -0.0:
-            out_i = 1.0
-        else:
-            out_i = eval(line_str)
-
-    return out_i
-
 # ---------- Variables ----------
 direc = sys.argv[1] # directory path
 prob_text = "Percentage (%)" #"Probability"
@@ -72,147 +54,15 @@ else:
         g_text = "$f_{a}$"
         g_const = "40000.0"
         m_text = "$M_{ALP}$"
+    elif proc == "scalar":
+        g_text = "g_i"
+        g_const = ""
+        m_text = "$M_X$"
         
     m_const = "1.0"
 
-# ---------- Theoritical/ Analytical Expressions
-# -- Inidividual ( s(gamma) = s(e-) = +1 )
-try:
-    if proc == "all":
-        DP_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_indi.txt','r')
-        ALPs_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_indi.txt','r')
-        ALPb_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_indi.txt','r')
-
-        in_file = [DP_file, ALPs_file, ALPb_file] 
-        str_indi = [None]*3
-        indi_denom = [None]*3
-        indi_num = [None]*3
-        indi_other= [None]*3
-
-        for i in range(0,len(in_file)):
-            lines = in_file[i].readlines()
-            test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-            mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-            line_indi = parse_mathematica(test1)
-            str_indi[i], indi_denom[i], indi_num[i], indi_other[i] = split_fraction(line_indi)
-
-            in_file[i].close()
-
-    else:
-        if proc == "DP":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_indi.txt','r')
-        elif proc == "ALPs":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_indi.txt','r')
-        elif proc == "ALPb":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_indi.txt','r')
-        elif proc == "ALPt":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPt_indi.txt','r')
-            
-        lines = in_file.readlines()
-        test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-        mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-        line_indi = parse_mathematica(test1)
-        str_indi, indi_denom, indi_num, indi_other = split_fraction(line_indi)
-
-        in_file.close()
-except FileNotFoundError:
-    print("Total indi not found")
-    exit()
-
-# -- Total ( s(e-) = +1 )
-try:
-    if proc == "all":
-        DP_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_tot.txt','r')
-        ALPs_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_tot.txt','r')
-        ALPb_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_tot.txt','r')
-
-        in_file = [DP_file, ALPs_file, ALPb_file] 
-        str_tot = [None]*3
-        tot_denom = [None]*3
-        tot_num = [None]*3
-        tot_other= [None]*3
-
-        for i in range(0,len(in_file)):
-            lines = in_file[i].readlines()
-            test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-            mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-            line_indi = parse_mathematica(test1)
-            str_tot[i], tot_denom[i], tot_num[i], tot_other[i] = split_fraction(line_indi)
-
-            in_file[i].close()
-
-    else:
-        if proc == "DP":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_tot.txt','r')
-        elif proc == "ALPs":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_tot.txt','r')
-        elif proc == "ALPb":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_tot.txt','r')
-        elif proc == "ALPt":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPt_tot.txt','r')
-            
-        lines = in_file.readlines()
-        test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-        mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-        line_tot = parse_mathematica(test1)
-        str_tot, tot_denom, tot_num, tot_other = split_fraction(line_tot)
-
-        in_file.close()
-except FileNotFoundError:
-    print("Total file not found")
-    exit()
-
-# --- Ratio
-try:
-    if proc == "all":
-        DP_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_expr_3.txt','r')
-        ALPs_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_expr_2.txt','r')
-        ALPb_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_expr_2.txt','r')
-
-        in_file = [DP_file, ALPs_file, ALPb_file] 
-        str_ratio = [None]*3
-        ratio_denom = [None]*3
-        ratio_num = [None]*3
-        ratio_other= [None]*3
-
-        for i in range(0,len(in_file)):
-            lines = in_file[i].readlines()
-            test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-            mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-            line_indi = parse_mathematica(test1)
-            str_ratio[i], ratio_denom[i], ratio_num[i], ratio_other[i] = split_fraction(line_indi)
-
-            in_file[i].close()
-
-    else:
-        if proc == "DP":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/DP_expr_3.txt','r')
-        elif proc == "ALPs":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPs_expr_2.txt','r')
-        elif proc == "ALPb":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPb_expr_2.txt','r')
-        elif proc == "ALPt":
-            in_file = open(r'/home/serner/Documents/Project_files/DP_ALP/Helicity_amplitude/ALPt_expr_2.txt','r')
-            
-        lines = in_file.readlines()
-        test1 = lines[0].replace("E1","Eng1").replace("E2","Eng2")
-        mA,x,gE,gA,gX,Eng1,Eng2,me,fa= var('mA x gE gA gX Eng1 Eng2 me fa')
-        line_ratio = parse_mathematica(test1)
-        str_ratio, ratio_denom, ratio_num, ratio_other = split_fraction(line_ratio)
-
-        in_file.close()
-except FileNotFoundError:
-    print("Total ratio not found")
-    exit()
-
 Eng1=4
 Eng2=7
-me=0.511*10**(-3)
-gA=1
-gE=0.5*10**4
-fa=4*10**3
-gX=1
-e=1
 
 data_no_cuts = {} # directory for data_no_cuts from histograms
 data_w_cuts = {} # directory for data_no_cuts from histograms
@@ -233,8 +83,8 @@ cos_all_s = {}
 cos_h_minus = {}
 
 cos_vals = np.array([])
-cos_min = np.cos(163*(np.pi/180))
-cos_max = np.cos(30*(np.pi/180))
+cos_min = np.cos(170*(np.pi/180))
+cos_max = np.cos(10*(np.pi/180))
 
 pattern = r'[0-9]'
 
@@ -364,6 +214,7 @@ if "SM" not in titles:
     quit()
 else:
     SM_pos = np.where(titles=="SM")
+
 # ---------- Analysis ----------
 # ----- Sort Input parameters
 n_all = len(titles)
@@ -599,11 +450,6 @@ for i in range(0,n_all):
         for_m_w_cuts.append([ for_w_cuts[g + i*n_g + 1] for g in range(0,n_g) ])
         back_m_w_cuts.append([ back_w_cuts[g + i*n_g + 1] for g in range(0,n_g) ])    
         
-        temp_indi = [ func_def(c_val,m_values[i],Eng1,Eng2,me,gA,gE,fa,gX,str_indi,indi_denom,indi_num,indi_other) for c_val in cos_vals]
-        temp_tot = [ func_def(c_val,m_values[i],Eng1,Eng2,me,gA,gE,fa,gX,str_tot,tot_denom,tot_num,tot_other) for c_val in cos_vals]
-
-        theo_for_val,theo_back_val,theo_for_err,theo_back_err=for_back_calcs(theo_for_val,theo_back_val,theo_for_err,theo_back_err,temp_indi,temp_tot,cos_vals,cos_min,cos_max)
-
     if i < n_g and proc != "all": # constant coupling, vary mass
         # --- no cuts
         z_g_no_cuts.append([ h_probs_no_cuts[hist_names[2]][1][i + m*n_g] for m in range(0,n_m) ])
@@ -764,13 +610,11 @@ if bool(cos_probs_w_cuts): # if there is data_no_cuts in cos
 
                 y_vals = [ cos_probs_no_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
                 y_errs = [ cos_err_no_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
-                ax5.plot(cos_vals,R_func(cos_vals,float(a_title[0]),Eng1,Eng2,me,str_ratio, ratio_denom, ratio_num, ratio_other),color=col)
                 ax5.scatter(x_vals,y_vals, label=label_text, color=col,marker=marker)
                 ax5.errorbar(x_vals,y_vals,yerr=y_errs,ls="", color=col)
 
                 y_vals = [ cos_probs_w_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
                 y_errs = [ cos_err_w_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
-                ax7.plot(cos_vals,R_func(cos_vals,float(a_title[0]),Eng1,Eng2,me,str_ratio, ratio_denom, ratio_num, ratio_other),color=col)
                 ax7.scatter(x_vals,y_vals, label=label_text, color=col,marker=marker)
                 ax7.errorbar(x_vals,y_vals,yerr=y_errs,ls="", color=col)
 
@@ -820,7 +664,6 @@ if bool(cos_probs_w_cuts): # if there is data_no_cuts in cos
 
                 y_vals = [ cos_probs_no_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
                 y_errs = [ cos_err_no_cuts[title][x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
-                ax5.plot(cos_vals,R_func(cos_vals,m_proc,Eng1,Eng2,me,str_ratio[i_proc], ratio_denom[i_proc], ratio_num[i_proc], ratio_other[i_proc]),color=col)
                 ax5.scatter(x_vals,y_vals, label=title, color=col, marker=marker)
                 ax5.errorbar(x_vals,y_vals,yerr=cos_err_no_cuts[title][0:i_cut],ls="", color=col)
                 
@@ -848,27 +691,17 @@ if bool(cos_probs_w_cuts): # if there is data_no_cuts in cos
             ax_errs = cos_err_no_cuts["SM"]
 
             ax.plot(cos_vals,[SM_data_probs_no_cuts[2]]*len(cos_vals),color="r",linewidth=0.8)
-            #errMINUS=[SM_data_probs_no_cuts[2]]*len(cos_vals)-SM_data_err_no_cuts[2]
-            #errPLUS=[SM_data_probs_no_cuts[2]]*len(cos_vals)+SM_data_err_no_cuts[2]
-            #ax.fill_between(cos_vals,errMINUS,errPLUS,alpha=0.2,color="orange")
         elif ax in [ax7,ax8]:
             ax_vals = cos_probs_w_cuts["SM"]
             ax_errs = cos_err_w_cuts["SM"]
 
             ax.plot(cos_vals,[SM_data_probs_w_cuts[2]]*len(cos_vals),color="r",linewidth=0.8)
-            #errMINUS=[SM_data_probs_w_cuts[2]]*len(cos_vals)-SM_data_err_w_cuts[2]
-            #errPLUS=[SM_data_probs_w_cuts[2]]*len(cos_vals)+SM_data_err_w_cuts[2]
-            #ax.fill_between(cos_vals,errMINUS,errPLUS,alpha=0.2,color="orange")
         elif ax in [ax9a,ax9b]:
             ax_list = cos_all_s
             ax_vals = np.divide(ax_list["SM"][1],ax_list["SM"][0],where=ax_list["SM"][0]!=0.0,out=np.zeros(len(ax_list["SM"][1])))
         elif ax in [ax9c]:
             ax_list = cos_h_minus
             ax_vals = np.divide(ax_list["SM"][1],ax_list["SM"][0],where=ax_list["SM"][0]!=0.0,out=np.zeros(len(ax_list["SM"][1])))
-
-        #Text
-        #if proc == "DP":
-            #ax.text(0.45,0.8,r'$\mathbb{-}$ Analytical'"\n"r'● MadGraph ', fontsize=10,bbox={'facecolor':'white','edgecolor':'dimgrey'})#,'pad':10})
 
         #SM
         y_vals = [ ax_vals[x_n] for x_n in range(0,len(cos_vals)) if x_n not in i_cut ]
@@ -940,33 +773,9 @@ errMINUS=[back_no_cuts[SM_pos][0]]*n_m-back_no_cuts_errs[SM_pos]
 errPLUS=[back_no_cuts[SM_pos][0]]*n_m+back_no_cuts_errs[SM_pos]
 ax10b.fill_between(m_values,errMINUS,errPLUS,alpha=0.2,color="orange")
 
-# Theoretical/ Analytical
-"""
-theo_for = [ integrate.quad(func_ratio,0,1,args=(mi,Eng1,Eng2,me,gA,gE)) for mi in m_values ]
-theo_for_val = [ theo_for[mi][0] for mi in range(0,n_m) ]
-Iy_vals = [ func_ratio(cos_val,1,Eng1,Eng2,me,gA,gE) for cos_val in cos_vals ]
-I_trapz = trapz(Iy_vals,cos_vals)
-print(I_trapz)
-I_trap = (2/(len(cos_vals)-1))/2*(Iy_vals[0] + 2*sum(Iy_vals[1:] + Iy_vals[0:-1]))
-print(I_trap)
-theo_for_err = [ theo_for[mi][1] for mi in range(0,n_m) ]
-theo_back  = [ integrate.quad(func_ratio,-1,0,args=(mi,Eng1,Eng2,me,gA,gE)) for mi in m_values ]
-theo_back_val = [ theo_back[mi][0] for mi in range(0,n_m) ]
-theo_back_err = [ theo_back[mi][1] for mi in range(0,n_m) ]
-"""
-
-"""
-for_vals = np.array([ np.array([ func_ratio(cos_val,mi,Eng1,Eng2,me,gA,gE) for cos_val in cos_vals if cos_val >= 0.0 and cos_val <= cos_max ]) for mi in m_values ])
-theo_for_val = [ for_vals[i].sum()/len(for_vals[i]) for i in range(0,len(for_vals))]
-back_vals = np.array([ np.array([ func_ratio(cos_val,mi,Eng1,Eng2,me,gA,gE) for cos_val in cos_vals if cos_val >= cos_min and cos_val <= 0.0 ]) for mi in m_values ])
-theo_back_val = [ back_vals[i].sum()/len(back_vals[i]) for i in range(0,len(back_vals))]
-"""
 if proc != "all":
     ax10a.plot(m_values,theo_for_val, color='orange')
-    #ax10a.fill_between(m_values,np.subtract(theo_for_val,theo_for_err),np.add(theo_for_val,theo_for_err),alpha=0.2,color="orange")
     ax10b.plot(m_values,theo_back_val, color='orange')
-    #ax10b.fill_between(m_values,np.subtract(theo_back_val,theo_back_err),np.add(theo_back_val,theo_back_err),alpha=0.2,color="orange")
-
 
 for i in range(1,n_all):
     if i > n_g and i > n_m:
@@ -1005,43 +814,3 @@ fig10b.legend(loc='lower left',bbox_to_anchor=(0.125, 0.1), ncol=2,title=g_text)
 
 fig10a.savefig("for_m.jpg", bbox_inches='tight', dpi=250)
 fig10b.savefig("back_m.jpg", bbox_inches='tight', dpi=250)
-
-"""
-# --- plot 11: Percentages
-fig11a, ax11a = plt.subplots(1,2)
-fig11b, ax11b = plt.subplots(1,2)
-
-for i in range(2,n_h):
-    hist_name = hist_names[i].replace("hs","").replace("E1","$S(E)=1$").replace("Em1","$S(E)=-1$")
-
-    for ax in [ax11a,ax11b]:
-        if ax in np.array([ax11a]):
-            prob = h_probs_no_cuts
-            h = h_no_cuts
-        elif ax in [ax11b]:
-            prob = h_probs_w_cuts
-            h = h_w_cuts
-
-        ax[i-2].scatter(titles,prob[hist_names[i]][0],label="$S(A)=-1$")
-        ax[i-2].scatter(titles,prob[hist_names[i]][1],label="$S(A)=1$")
-
-        ax[i-2].spines['right'].set_color('none')
-        ax[i-2].spines['top'].set_color('none')
-        #ax[i-2].spines['bottom'].set_position('zero')
-
-        ax[i-2].set_yticks(np.linspace(0,1.0,11))
-
-        ax[i-2].set_title(hist_name)
-        ax[i-2].grid(True)
-
-        ax[1].legend()
-        ax[0].set_ylabel(prob_text)
-
-fig11a.suptitle(prob_text+" of $s(\\gamma)=s(e^-)$")
-fig11b.suptitle(prob_text+" of $s(\\gamma)=s(e^-)$")
-fig11a.savefig("probs_no_cuts.jpg" , bbox_inches='tight', dpi=250)
-fig11b.savefig("probs_w_cuts.jpg" , bbox_inches='tight', dpi=250)
-"""
-
-
-
