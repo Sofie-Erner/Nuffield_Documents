@@ -13,8 +13,6 @@ from scipy.stats import poisson
 import scipy.special as sc
 
 import statistics
-#from sklearn.preprocessing import StandardScaler 
-#from sklearn.preprocessing import MinMaxScaler
 
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.mathematica import mathematica
