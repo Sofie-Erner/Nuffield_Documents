@@ -428,12 +428,6 @@ back_g_w_cuts = []
 for_m_w_cuts = []
 back_m_w_cuts = []
 
-
-theo_for_val = []
-theo_back_val = []
-theo_for_err = []
-theo_back_err = []
-
 for i in range(0,n_all):
     if i < n_m and proc != "all": # constant mass, vary coupling
         # --- no cuts
@@ -771,10 +765,6 @@ ax10b.plot(m_values,[back_no_cuts[SM_pos]]*n_m,label="SM",color="r")
 errMINUS=[back_no_cuts[SM_pos][0]]*n_m-back_no_cuts_errs[SM_pos]
 errPLUS=[back_no_cuts[SM_pos][0]]*n_m+back_no_cuts_errs[SM_pos]
 ax10b.fill_between(m_values,errMINUS,errPLUS,alpha=0.2,color="orange")
-
-if proc != "all":
-    ax10a.plot(m_values,theo_for_val, color='orange')
-    ax10b.plot(m_values,theo_back_val, color='orange')
 
 for i in range(1,n_all):
     if i > n_g and i > n_m:
