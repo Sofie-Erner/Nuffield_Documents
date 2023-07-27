@@ -96,7 +96,7 @@ for file in os.listdir(direc):
         in_file = open(os.path.join(direc, file),'r')
         lines = in_file.readlines()
 
-        title = file.replace(ending,'')
+        title = file.replace(ending,'').replace("E_theta_","")
     
         if "SM" in title:
             title = "SM"
