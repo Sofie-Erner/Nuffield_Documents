@@ -580,7 +580,6 @@ if bool(cos_probs_w_cuts): # if there is data_no_cuts in cos
             a_title=np.array(title.split("_"))
 
             col = cols[iter]
-            marker = mark_style[iter]
 
             g_on = 0
             m_on = 0
@@ -599,7 +598,7 @@ if bool(cos_probs_w_cuts): # if there is data_no_cuts in cos
             
                 if proc == "ALPs" and paper_on == 1:
                     col = cols[iter+4]
-                    marker = mark_style[iter]
+                    marker = "."
                 elif proc == "DP" and paper_on == 1:
                     col = cols[iter]
                     marker = "."
