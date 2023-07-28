@@ -20,6 +20,9 @@ from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.mathematica import mathematica
 from sympy import var
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+
 from Extra.belle_funcs import *
 
 # ---------- Command Line Arguments ----------
@@ -51,6 +54,7 @@ else:
         quit()
 
 direc = sys.argv[1] # directory path
+file_path = os.path.dirname(os.path.realpath(__file__))
 
 # ---------- Variables ----------
 SM_on = 0 # SM on or off
@@ -234,24 +238,18 @@ p_crit = 0.1
 
 # --- Import fit functions
 if SM_on == 1:
-    """
-    fitLow_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitLowAutoCOMB.txt','r')
-    fitHigh_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitHighAutoCOMB.txt','r')
-    in_file = [fitLow_file, fitHigh_file]
-    """
+
+    os.path.join(file_path, files[0])
     if (len(files) > 1 and "SM_all" in titles) or "SM_all" in files[0]:
-        fitLow_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitLowAutoCOMB.txt','r')
-        fitHigh_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitHighAutoCOMB.txt','r')
+        fitLow_file = open(os.path.join(file_path, r'../SM_Results/E_theta/FitLowAutoCOMB.txt'),'r')
+        fitHigh_file = open(os.path.join(file_path, r'../SM_Results/E_theta/FitHighAutoCOMB.txt'),'r')
         in_file = [fitLow_file, fitHigh_file]
     elif (len(files) > 1 and "SM_RR" in titles) or "SM_RR" in files[0]:
-        fit_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitHighAutoRR.txt','r')
+        fit_file = open(os.path.join(file_path, r'../SM_Results/E_theta/FitHighAutoRR.txt'),'r')
         in_file = [fit_file]
-        #fitLow_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitLowAutoRR.txt','r')
-        #fitHigh_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitHighAutoRR.txt','r')
-        #in_file = [fitLow_file, fitHigh_file]
     elif (len(files) > 1 and "SM_RL" in titles) or "SM_RL" in files[0]:
-        fitLow_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitLowAutoCOMB.txt','r')
-        fitHigh_file = open(r'/home/serner/Documents/Project_files/DP_ALP/MadGraph_results/SM_back/Belle/Belle_comp/LHE_results/FitHighAutoCOMB.txt','r')
+        fitLow_file = open(os.path.join(file_path, r'../SM_Results/E_theta/FitLowAutoCOMB.txt'),'r')
+        fitHigh_file = open(os.path.join(file_path, r'../SM_Results/E_theta/FitHighAutoCOMB.txt'),'r')
         in_file = [fitLow_file, fitHigh_file]
     else:
         print("Error SM fit file not found")
@@ -281,7 +279,6 @@ if len(files) > 1 and SM_on == 1:
     N_low_high = np.zeros([2,len(z_data.keys())]) # number of event for each fit
     N_crit_low_high = np.zeros(len(E_low_high)) # signal number of event for each fit
 
-    print("---- Poisson ----")
     for n in range(0,len(E_low_high)):
         for i in range(0,len(theta_vals)):
             for j in range(0,len(E_vals)):
@@ -309,36 +306,34 @@ if len(files) > 1 and SM_on == 1:
                 else:
                     t = "m"
 
-                if c_i < 1:
-                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*c_i
-                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*c_i
+                if phot_eff(m_i,t) != 0.0:
+                    epsS = phot_eff(m_i,t)
+                
+                    if c_i < 1:
+                        c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(epsS*L))/(N_low_high[0][n]/L))*c_i
+                        c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(epsS*L))/(N_low_high[0][n]/L))*c_i
+                    else:
+                        c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(epsS*L))/(N_low_high[0][n]/L))*(1/c_i)
+                        c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(epsS*L))/(N_low_high[0][n]/L))*(1/c_i)
                 else:
-                    c_crit[0][n] = np.sqrt((N_crit_low_high[0]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*(1/c_i)
-                    c_crit_indi[0][n] = np.sqrt((N_SM_crit[0][n-1]/(phot_eff(m_i,t)*L))/(N_low_high[0][n]/L))*(1/c_i)
+                    c_crit[0][n] = 0.0
+                    c_crit_indi[0][n] = 0.0
             
             if len(E_low_high) > 1:
                 if N_low_high[1][n] != 0:
-                    #n_SM = N_crit_low_high[1]
-                    #n_SM = N_SM_crit[1][n-1]
+                    
+                    if phot_eff(m_i,t) != 0.0:
+                        epsS = phot_eff(m_i,"h")
+                
                     if c_i < 1:
                         c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i 
                         c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i
                     else:
                         c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
                         c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
-   
-    
-
-    #print(N_low_high)
-    #print(N_crit_low_high)
-    #print("N_SM: ",N_SM)
-    #print(N_SM_crit)
-   
-    print("----")
-    #print([ np.sqrt((N_SM_crit[0][n]/(phot_eff(float(titles[n+1].split("_")[0]))*L))/(N_low_high[0][n+1]/L))*float(titles[n+1].split("_")[1]) for n in range(0,len(titles)-1) ])
-    #print([ np.sqrt((N_SM_crit[1][n]/(phot_eff(float(titles[n+1].split("_")[0]))*L))/(N_low_high[1][n+1]/L))*float(titles[n+1].split("_")[1]) for n in range(0,len(titles)-1) ])
-
-    #print(c_crit)
+                else:
+                    c_crit[1][n] = 0.0
+                    c_crit_indi[1][n] = 0.0
 
     if n_c > 1 and n_m == 1: # more than one coupling constant for one mass
         l_i = -(round(np.log10(c_crit[1]))-1)
@@ -348,29 +343,7 @@ if len(files) > 1 and SM_on == 1:
             print("Error, did not get some critical value for mass")
             quit()
 
-    """
-    print([poisson.cdf(k=int(N_low[0]), mu=(int(N_low[0]) + N_low[n])) for n in range(0,len(N_low)) ])
-    print([poisson.cdf(k=int(N_high[0]), mu=(int(N_high[0]) + N_high[n])) for n in range(0,len(N_high)) ])
-
-    for n in range(1,len(z_data.keys())):
-        print("----------",titles[n],"----------")
-        print(round(np.log10(N_low[n])))
-        # Low Mass
-        if ( N_low[n] != 0 ):
-            i = find_signal(int(N_low[0]),N_low[n],p_crit)
-
-            print(titles[n],' LOW: final muS: ',(1+i)*N_low[n], "for multiplier: ", (1+i))
-
-        # High Mass
-        i = find_signal(int(N_high[0]),N_high[n],p_crit)
-            
-        print(titles[n],' HIGH: final muS: ',(1+i)*N_high[n], "for multiplier: ", (1+i))
-    """
-
-    print(c_crit)
-    print(c_crit_indi)
 # ---------- Plot ----------
-print("---- Plot ----")
 colMaps = ["Purples","Blues","Greens","Purples","Blues","Greens","Purples","Blues","Greens","Purples","Blues","Greens"]
 cols = ["purple","blue","green","purple","blue","green","purple","blue","green","purple","blue","green","purple","blue","green","purple","blue","green"]
 
@@ -444,7 +417,6 @@ else:
     else:
         DM_cols = np.array([])
         for iter in range(0,len(titles)):
-            #print(titles[iter])
             if "SM" in titles[iter]:
                 title = titles[iter]
             else:
@@ -456,16 +428,7 @@ else:
                 z_temp = z_data[title]*(t_max/np.max(z_data[title]))
             else:
                 z_temp = z_data[title]
-                
-            #z_temp = z_scaled[iter].reshape(t_rows,t_cols)
-            #print([ z_temp.flatten('C')[j]/z_data[title].flatten('C')[j] for j in range(0,t_rows*t_cols) if z_data[title].flatten('C')[j] != 0 ])
-
-            """
-            if "SM" in title:
-                z_fin = z_fin + z_data[title]
-            else:
-                z_fin = z_fin + multi*z_data[title]
-            """
+       
             setMin, setMax = plot_min_max(z_temp)
 
             norm = colors.LogNorm(vmin=setMin, vmax=setMax)
@@ -475,45 +438,8 @@ else:
                 t_label = "SM"
                 ima = ax1.pcolor(theta_vals,E_vals,z_temp, cmap=col_i, shading='auto', norm=norm)
                 cbar = fig1.colorbar(ima, label=z_label, format=ticker.FuncFormatter(fmt), ax=ax1, pad=0.15) #[$fb^{-1}$]
-            """
-            else:
-                ax1.axhline(E_CMS_1(title[0]),color=cols[iter],ls="--",alpha=0.5)
-            else:
-                col_i = colMaps[iter]
-
-                DM_cols = np.append(DM_cols,cols[iter])
-
-                indexes = [x for x, v in enumerate(titles[iter]) if v == '_']
-
-                if len(indexes) >= 1:
-                    t_label = titles[iter][:indexes[0]]
-                else:
-                    t_label = titles[iter]
-                labels = np.append(labels,t_label)
-            """
-            #ima = ax1.pcolor(theta_vals,E_vals,z_temp, cmap=col_i, shading='auto', norm=norm)
-
-
-            #c_label = r'Entries/bin ($\mathcal{L}=20 \, fb^{-1}$)'
-            #cbar = fig1.colorbar(ima, label=c_label, format=ticker.FuncFormatter(fmt), ax=ax1) #[$fb^{-1}$]
-
-            """
-            if iter == 0: # first file
-                #out_file = out_file + title + "_"
-                c_label = z_label
-                cbar = fig1.colorbar(ima, label=c_label, format=ticker.FuncFormatter(fmt), ax=ax1) #[$fb^{-1}$]
-            elif iter == len(titles)-1: # last file
-                out_file = out_file + title
-                c_label = ""
-            else:
-                out_file = out_file + title + "_"
-                c_label = ""
-            cbar = fig1.colorbar(ima, label=c_label, format=ticker.FuncFormatter(fmt), ax=ax1) #[$fb^{-1}$]
-            """
 
         out_file = "DM_" + [title for title in titles if "SM" in title][0]
-        #markers = [ plt.Line2D([0,0],[0,0], color=DM_cols[iter], marker='o', linestyle='') for iter in range(0,4) ]
-        #fig1.legend(markers, np.unique(labels), numpoints=1, title="Mass [GeV]", bbox_to_anchor=(1.05,1), loc='upper right')
 
 if SM_on == 1:
     if len(E_low_high) == 1:
@@ -536,13 +462,6 @@ secYax1 = ax1.secondary_yaxis('right',functions=(M_DM_1,E_CMS_1))
 
 yticks = secYax1.yaxis.get_major_ticks()
 yticks[1].set_visible(False)
-"""
-#secYax.set_yticks(secYax.get_yticks()[1:])
-#secYax.yaxis.set_ticks(np.arange(0, M_DM_2(1.0), 10))
-#secYax.set_ylim(M_DM_1(Emin),0)
-#secYax.set_ylim(ax1.get_ylim())
-#secYax.yaxis.set_major_formatter(ticker.FuncFormatter(M_DM_labels))
-"""
 secYax1.set_ylabel('$m_X$ [GeV]')
 
 ax1.xaxis.set_minor_locator(ticker.AutoMinorLocator())
@@ -668,39 +587,3 @@ if len(files) == 1 and SM_on == 1:
     fig4.savefig(out_file+"_dE.jpg" , bbox_inches='tight', dpi=250)
 
 exit()
-"""
-z = np.ma.masked_where(z_data <= 0, z_data)
-z_step = (np.max(z_data)-np.min(z_data))/100.
-levels = np.arange(np.min(z_data), np.max(z_data)+z_step, z_step)
-ima = ax1.contourf(theta_vals,E_vals,z, locator=ticker.LogLocator(base=10), cmap="YlOrBr")
-cbar = fig1.colorbar(ima, format=ticker.FuncFormatter(fmt), label=r'Entries/bin [fb$^{-1}$]' )
-cbar.formatter = ticker.LogFormatterExponent(base=10) # 10 is the default
-cbar.update_ticks()
-
-            if ( m_n < 6): # Low Mass
-                if N_low_high[0][n] == 0:
-                    print("Error in signal numbers for low mass")
-                    quit()
-                
-                sigma_crit = (N_crit_low_high[0]*L)/phot_eff(m_n)
-                    
-                #print("Low: ",titles[n].split('_')[1],f" c crit: {np.sqrt(N_crit_low_high[0]/N_low_high[0][n])*c_n:.2E}")
-                #print(f"{np.sqrt(N_crit_low_high[0]/(N_low_high[0][n]*phot_eff(m_n)))*c_n:.2E}")
-                c_crit[n] = np.sqrt(N_crit_low_high[0]/(N_low_high[0][n]*phot_eff(m_n)))*c_n
-
-            elif m_n >= 6: # High Mass
-                if N_low_high[1][n] == 0:
-                    print("Error in signal numbers for high mass")
-                    quit()
-
-                sigma_crit = (N_crit_low_high[1]*L)/phot_eff(m_n)
-
-                #print("High: ",titles[n].split('_')[1],f" c crit: {np.sqrt(N_crit_low_high[1]/N_low_high[1][n])*c_n:.2E}")
-                #print(f"{np.sqrt(N_crit_low_high[1]/(N_low_high[1][n]*phot_eff(m_n)))*c_n:.2E}")
-                c_crit[n] = np.sqrt(N_crit_low_high[1]/(N_low_high[1][n]*phot_eff(m_n)))*c_n
-
-            
-            else:
-                print("Error in mass: ", m_n)
-                quit()
-            """
