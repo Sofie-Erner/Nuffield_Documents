@@ -325,12 +325,12 @@ if len(files) > 1 and SM_on == 1:
                     if phot_eff(m_i,t) != 0.0:
                         epsS = phot_eff(m_i,"h")
                 
-                    if c_i < 1:
-                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i 
-                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*c_i
-                    else:
-                        c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
-                        c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(phot_eff(m_i,"h")*L))/(N_low_high[1][n]/L))*(1/c_i)
+                        if c_i < 1:
+                            c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(epsS*L))/(N_low_high[1][n]/L))*c_i 
+                            c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(epsS*L))/(N_low_high[1][n]/L))*c_i
+                        else:
+                            c_crit[1][n] = np.sqrt((N_crit_low_high[1]/(epsS*L))/(N_low_high[1][n]/L))*(1/c_i)
+                            c_crit_indi[1][n] = np.sqrt((N_SM_crit[1][n-1]/(epsS*L))/(N_low_high[1][n]/L))*(1/c_i)
                 else:
                     c_crit[1][n] = 0.0
                     c_crit_indi[1][n] = 0.0
@@ -512,7 +512,8 @@ if len(files) > 1 and n_m > 1 and SM_on == 1:
         ax.set_xlim([10**(-2),10])
 
         ax.set_yscale('log')
-        ax.set_ylim([10**(-4),10**(-1)])
+        #print('{:.0e}'.format(min(y_vals)).split('e'))
+        #ax.set_ylim([10**(-4),10**(-1)])
         #ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%1.1e'))
 
         ax.set_xlabel(r"$m_X$")
