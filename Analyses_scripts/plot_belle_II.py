@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# ---------- Libaries ----------
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import ticker, cm, colors
@@ -13,8 +15,6 @@ from scipy.stats import poisson
 import scipy.special as sc
 
 import statistics
-#from sklearn.preprocessing import StandardScaler 
-#from sklearn.preprocessing import MinMaxScaler
 
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.mathematica import mathematica
